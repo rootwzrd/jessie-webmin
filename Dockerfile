@@ -3,21 +3,20 @@
 FROM debian:jessie
 MAINTAINER youske miyakoshi <youske@gmail.com>
 
-ENV BASE_PACKAGE="bash gawk wget python" \
-    PERL_PACKAGE="perl liblibio-pty-perl libnet-ssleay-perl libauthen-pam-perl apt-show-versions libapt-pkg-perl" \
+ENV WEBMIN_VERSION=1.79.1 \
+    BASE_PACKAGE="wget expect perl python openssl" \
+    PERL_LIBPACKAGE="libnet-ssleay-perl libauthen-pam-perl libpam-runtime libio-pty-perl" \
     LANGUAGE=ja_JP.UTF-8 \
     WEBMIN_VERSION=1.791 \
-    DOWNLOAD_URL=http://prdownloads.sourceforge.net/webadmin/webmin_%WM_REP%_all.deb \
-    WEBMIN_BASE=/webmin
+    WEBMIN_BASE=/webmin \
+    ADMIN_NAME=admin \
+    ADMIN_PASSWORD=admin
 
-COPY debian-webmin.list /etc/apt/sources.list.d
+RUN apt-get update && apt-get upgrade && apt-get install -y ${BASE_PACKAGE} ${PERL_LIBPACKAGE}
+RUN cd /root && wget -q http://prdownloads.sourceforge.net/webadmin/webmin-1.791.tar.gz -O- | tar zx
+COPY setup_expect /root/webmin-${WEBMIN_VERSION}
 
-#RUN apt-get update && apt-get upgrade && apt-get install -y wget
+RUN mkdir ${WEBMIN_BASE} && cd /root/webmin-${WEBMIN_VERSION} && ./setup_expect && date
 
-# webmin apt
-#RUN cd /root && wget http://www.webmin.com/jcameron-key.asc && apt-key add jcameron-key.asc && apt-get update
-
-
-#RUN apt-get -y install webmin
-
+EXPOSE 8088
 CMD ["bash"]
