@@ -15,3 +15,6 @@ README*
 *.swp
 *.lock
 *.lck
+*.*~
+*~
+.tags
